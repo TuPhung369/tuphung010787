@@ -20,7 +20,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
   const pathHome = path.join(__dirname, "home.html");
-  console.log(pathHome);
   res.sendFile(pathHome);
 });
 
