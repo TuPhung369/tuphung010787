@@ -22,7 +22,9 @@ app.get("/", (req, res) => {
   const pathHome = path.join(__dirname, "home.html");
   res.sendFile(pathHome);
 });
-
+app.get("/home", (req, res) => {
+  res.json("Welcome to the home page");
+});
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
