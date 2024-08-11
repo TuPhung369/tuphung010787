@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ignore .env file
 .env
 
@@ -10,3 +11,7 @@ node_modules/
 # Ignore any file or directory named 'temp'
 temp
 .vercel
+=======
+.env
+nodee_module
+>>>>>>> 7a1664aa9010cfb1fdd31cc88e8ce22c327ab0a6
