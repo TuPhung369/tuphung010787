@@ -39,15 +39,13 @@ router.post("/", (req, res, next) => {
 // Update data in DB
 router.put("/:id", (req, res, next) => {
   const { id } = req.params;
-  const { newUsername, newPassword } = req.body;
-
-  if (!newUsername && !newPassword) {
-    return res.status(400).json("New username or password is required");
-  }
+  const { username, password, role, phone } = req.body;
 
   const updateData = {};
-  if (newUsername) updateData.username = newUsername;
-  if (newPassword) updateData.password = newPassword;
+  if (username) updateData.username = username;
+  if (password) updateData.password = password;
+  if (role) updateData.role = role;
+  if (phone) updateData.phone = phone;
 
   AccountModel.findByIdAndUpdate(id, updateData, { new: true })
     .then((data) => {

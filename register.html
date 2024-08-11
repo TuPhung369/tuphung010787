@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <h2>Register</h2>
+    <form id="registerForm">
+        Username: <input type="text" id="username" name="username" required><br>
+        Password: <input type="password" id="password" name="password" required><br>
+        Phone Number: <input type="text" id="phoneNumber" name="phoneNumber" required placeholder="+1234567890"><br>
+        Role: 
+        <select id="role" name="role">
+            <option value="user">User</option>
+            <option value="manager">Manager</option>
+            <option value="teacher">Teacher</option>
+        </select><br>
+        <button type="submit">Register</button>
+    </form>
+
+   <script>
+        $(document).ready(function() {
+            $("#registerForm").on("submit", function(event) {
+                event.preventDefault();
+                
+                const username = $("#username").val();
+                const password = $("#password").val();
+                const phoneNumber = $("#phoneNumber").val();
+                const role = $("#role").val();
+
+                $.ajax({
+                    url: "/register",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        username: username,
+                        password: password,
+                        phone: phoneNumber,  // Added phoneNumber to data payload
+                        role: role
+                    }),
+                })
+                .then((response) => {
+                    alert(response); // Show success message
+                    window.location.href = "/login"; // Redirect to login page after successful registration
+                })
+                .catch((error) => {
+                    alert("Registration failed: " + error.responseText); // Show error message if registration fails
+                });
+            });
+        });
+    </script>
+</body>
+</html>

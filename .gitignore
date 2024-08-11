@@ -9,3 +9,4 @@ node_modules/
 
 # Ignore any file or directory named 'temp'
 temp
+.vercel

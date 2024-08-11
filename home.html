@@ -3,10 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Home</title>
     <link rel="stylesheet" href="./home.css">
+        <!-- Include jQuery library -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <!-- Include js-cookie library -->
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 </head>
 <body>
     <h1>Welcome Homepage!</h1>
+    
+      <button onclick="logout()">Logout</button>
+
+<script>
+    function logout() {
+        $.ajax({
+            url: "/logout",
+            type: "POST",
+            success: function(data) {
+            // Clear client-side tokens and navigate to login page
+            sessionStorage.clear();
+            localStorage.clear();
+            Cookies.remove("token");
+            window.location.href = "/login";
+            },
+            error: function(xhr, status, error) {
+            console.error("Logout error:", error);
+            alert("Logout failed - Please try again.");
+            }
+        });
+    }
+</script>
 </body>
 </html>

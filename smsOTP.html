@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phone Number Verification</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div id="recaptcha-container"></div>
+  <div id="phone-verification">
+    <input type="text" id="phone-number" placeholder="Enter your phone number">
+    <button id="send-otp">Send OTP</button>
+  </div>
+  <div id="otp-verification" style="display: none;">
+    <input type="text" id="otp" placeholder="Enter OTP">
+    <button id="verify-otp">Verify OTP</button>
+  </div>
+
+<script type="module">
+  async function loadAndInitializeFirebase() {
+    try {
+      // Import Firebase modules using the new modular syntax
+      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js');
+      const { getAuth, RecaptchaVerifier, signInWithPhoneNumber } = await import('https://www.gstatic.com/firebasejs/9.1.0/firebase-auth.js');
+
+      const firebaseConfig = {
+          apiKey: "AIzaSyBeABrSiMJ9AUBgLWYieEfCDIjk7Aszwac",
+          authDomain: "expressjs-428716.firebaseapp.com",
+          databaseURL: "https://expressjs-428716-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "expressjs-428716",
+          storageBucket: "expressjs-428716.appspot.com",
+          messagingSenderId: "28599449812",
+          appId: "1:28599449812:web:3bf21d92b56d9f1977e341",
+          measurementId: "G-RKPWQBS3DM"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        setupFirebaseAuth(auth, { RecaptchaVerifier, signInWithPhoneNumber });
+    } catch (error) {
+      console.error('Error loading Firebase SDKs', error);
+    }
+  }
+
+  function setupFirebaseAuth(auth, { RecaptchaVerifier, signInWithPhoneNumber }) {
+    $(document).ready(function() {
+        console.log("STEP 1: Document ready, setting up Firebase Auth.");
+      
+      function initializeRecaptcha() {
+        if (window.recaptchaVerifier) {
+          console.log("Clearing existing reCAPTCHA.");
+          window.recaptchaVerifier.clear(); // Clear existing widget
+          window.recaptchaVerifier = null; // Reset the reference
+        }
+
+        console.log("STEP 2: Initializing reCAPTCHA.");
+        window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+          'size': 'invisible',
+          'callback': (response) => {
+              console.log("STEP 3: reCAPTCHA solved, response:", response);
+            // reCAPTCHA solved - allow send OTP
+          }
+        }, auth);
+
+        window.recaptchaVerifier.render().then(function(widgetId) {
+          window.recaptchaWidgetId = widgetId;
+        }).catch((error) => {
+          console.error('Error rendering reCAPTCHA widget', error);
+        });
+      }
+
+      // Initialize reCAPTCHA on page load
+      initializeRecaptcha();
+
+      // Send OTP
+      $('#send-otp').click(function() {
+        console.log("STEP 4: Send OTP button clicked.");
+        const phoneNumber = $('#phone-number').val();
+        console.log("STEP 5: Phone number:", phoneNumber);
+        const appVerifier = window.recaptchaVerifier;
+        console.log("STEP 6: App verifier:", appVerifier);
+        signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+          .then((confirmationResult) => {
+            console.log("STEP 7: OTP sent, confirmation result:", confirmationResult);
+            window.confirmationResult = confirmationResult;
+            $('#phone-verification').hide();
+            $('#otp-verification').show();
+          }).catch((error) => {
+            console.error('Error during signInWithPhoneNumber', error);
+          });
+      });
+
+      // Verify OTP
+      $('#verify-otp').click(function() {
+        console.log("STEP 8: Verify OTP button clicked.");
+        const code = $('#otp').val();
+        console.log("STEP 8: OTP code entered:", code);
+        if (window.confirmationResult) {
+          console.log("STEP 8: Confirmation result exists, proceeding to confirm OTP.");
+          window.confirmationResult.confirm(code)
+            .then((result) => {
+              console.log("STEP 8: User verified, result:", result);
+              const user = result.user;
+              console.log('STEP 8: User verified', user);
+
+              // Retrieve the Firebase user token
+              user.getIdToken().then(function(idToken) {
+                // Use the ID token
+                console.log(idToken);
+
+                // Example: Send token to your backend server
+                // fetch('/verifyToken', {
+                //   method: 'POST',
+                //   headers: {
+                //     'Content-Type': 'application/json',
+                //   },
+                //   body: JSON.stringify({ token: idToken }),
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //   console.log('Token verification response:', data);
+                // })
+                // .catch((error) => {
+                //   console.error('Error sending token to backend:', error);
+                // });
+
+              }).catch(function(error) {
+                // Handle error
+                console.error('Error getting ID token', error);
+              });
+
+            }).catch((error) => {
+              console.error('Error during confirmationResult.confirm', error);
+            });
+        } else {
+          console.log("No confirmation result available to verify OTP.");
+        }
+      });
+
+      // Handle page refresh to reset reCAPTCHA
+      $(window).on('beforeunload', function() {
+        if (window.recaptchaVerifier) {
+          console.log("Clearing reCAPTCHA on page unload.");
+          window.recaptchaVerifier.clear(); // Clear the widget
+        }
+      });
+    });
+  }
+
+  loadAndInitializeFirebase();
+</script>
+</body>
+</html>

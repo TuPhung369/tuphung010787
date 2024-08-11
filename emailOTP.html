@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OTP Verification</title>
+</head>
+<body>
+    <h2>Enter Email</h2>
+    <input type="email" id="email" placeholder="Enter your email">
+    <button onclick="sendOTP()">Send OTP</button>
+    <!-- <p>mvn -f path/to/pom.xml &lt;goals&gt;</p> -->
+    <div id="otp-verification" style="display: none;">
+        <h2>Enter OTP</h2>
+        <input type="text" id="otp" placeholder="Enter OTP">
+        <button onclick="verifyOTP()">Verify OTP</button>
+    </div>
+
+
+    <script>
+        async function sendOTP() {
+            const email = document.getElementById('email').value;
+            const response = await fetch('/sendOtpEmail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            });
+            const data = await response.text();
+            alert(data);
+        }
+
+        async function verifyOTP() {
+            const email = document.getElementById('email').value;
+            const otp = document.getElementById('otp').value;
+            const response = await fetch('/verifyOtpEmail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, otp }),
+            });
+            const data = await response.text();
+            if (response.ok) {
+                window.location.href = "/login";  // Redirect to /login if response is successful
+            } else {
+                alert(data);  // Show alert with error message if OTP verification fails
+            }
+        }
+    </script>
+</body>
+</html>

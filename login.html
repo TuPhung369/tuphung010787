@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        
+        <label for="otp">OTP:</label>
+        <input type="text" id="otp" name="otp" required><br><br>
+        
+        <button type="submit">Confirm</button>
+    </form>
+
+    <button id="getOtpButton">Link to Get OTP via SMS</button>
+    <button id="getEmailOtpButton">Link to Get OTP via Email</button>
+
+    <script>
+        $(document).ready(function() {
+            $("#loginForm").on("submit", function(event) {
+                event.preventDefault();
+                
+                const username = $("#username").val();
+                const password = $("#password").val();
+                const otp = $("#otp").val();
+
+                $.ajax({
+                    url: "/login",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        username: username,
+                        password: password,
+                        otp: otp
+                    }),
+                })
+                .then((response) => {
+                    alert(response.message); // Show success message
+                    window.location.href = "/home"; // Redirect to home page after successful login
+                })
+                .catch((error) => {
+                    alert("Login failed: " + error.responseText); // Show error message if login fails
+                });
+            });
+
+            $("#getOtpButton").on("click", function() {
+                window.open("/smsOTP", "_blank");
+            });
+
+            $("#getEmailOtpButton").on("click", function() {
+                window.open("/emailOTP", "_blank");
+            });
+        });
+    </script>
+</body>
+</html>
